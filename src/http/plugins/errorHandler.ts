@@ -11,6 +11,7 @@ export const errorHandler = (
       return reply.code(400).send({
         error: "Bad Request",
         message: error.message,
+        details: error.details
       });
     }
 
@@ -18,6 +19,7 @@ export const errorHandler = (
       return reply.code(404).send({
         error: "Not Found",
         message: error.message,
+        details: error.details
       });
     }
   }

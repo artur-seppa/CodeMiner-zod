@@ -46,6 +46,64 @@ describe("POST /users", () => {
     });
     expect(user).toBeDefined();
   });
+
+  it('should return 400 for invalid username', async () => {
+    const invalidUser = {
+      username: 'a', // muito curto
+      email: 'test@example.com',
+      birthDate: '2000-01-01'
+    };
+
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/users',
+      payload: invalidUser
+    });
+
+    expect(response.statusCode).toBe(400);
+    const error = JSON.parse(response.payload);
+    expect(error.message).toBe('Validation failed');
+    expect(error.details.username._errors).toContain('Username must be at least 3 characters');
+  });
+
+  it('should return 400 for invalid email', async () => {
+    const invalidUser = {
+      username: 'testuser123',
+      email: 'invalid-email',
+      birthDate: '2000-01-01'
+    };
+
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/users',
+      payload: invalidUser
+    });
+
+    expect(response.statusCode).toBe(400);
+    const error = JSON.parse(response.payload);
+    expect(error.message).toBe('Validation failed');
+    expect(error.details.email._errors).toContain('Invalid email format');
+  });
+
+  it('should return 400 for invalid birth date', async () => {
+    const invalidUser = {
+      username: 'testuser123',
+      email: 'test@example.com',
+      birthDate: '2020-01-01' // muito recente
+    };
+
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/users',
+      payload: invalidUser
+    });
+
+    expect(response.statusCode).toBe(400);
+    const error = JSON.parse(response.payload);
+    expect(error.message).toBe('Validation failed');
+    expect(error.details.birthDate._errors).toContain('Invalid date format or out of range');
+  });
+
 });
 
 describe("PATCH /users/:id", () => {
