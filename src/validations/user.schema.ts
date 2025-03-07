@@ -17,10 +17,27 @@ export const userSchema = z.object({
     .transform(value => new Date(value)),
 });
 
-export type UserInput = z.infer<typeof userSchema>;
+export const createUserSchema = userSchema.required({
+  username: true,
+  email: true,
+  birthDate: true,
+});
 
-export const validateUser = (user: unknown) => {
-  const result = userSchema.safeParse(user);
+export const updateUserSchema = userSchema.partial();
+
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
+export const validateCreateUser = (user: unknown) => {
+  const result = createUserSchema.safeParse(user);
+  if (!result.success) {
+    return { success: false, errors: result.error.format() };
+  }
+  return { success: true, data: result.data };
+};
+
+export const validateUpdateUser = (user: unknown) => {
+  const result = updateUserSchema.safeParse(user);
   if (!result.success) {
     return { success: false, errors: result.error.format() };
   }
