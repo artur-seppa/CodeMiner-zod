@@ -10,11 +10,21 @@ export const userSchema = z.object({
   email: z.string().email("Invalid email format"),
   birthDate: z
     .string()
-    .refine(value => {
-      const date = new Date(value);
-      return !isNaN(date.getTime()) && date >= new Date("1904-01-01") && date <= new Date(new Date().setFullYear(new Date().getFullYear() - 13));
-    }, { message: "Invalid date format or out of range" })
-    .transform(value => new Date(value)),
+    .refine((value) => !isNaN(new Date(value).getTime()), {
+      message: "Invalid date format",
+    })
+    .transform((value) => new Date(value))
+    .pipe(
+      z.date()
+        .min(
+          new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
+          "Invalid date format or out of range"
+        )
+        .max(
+          new Date(new Date().setFullYear(new Date().getFullYear() - 13)),
+          "Invalid date format or out of range"
+        )
+    )
 });
 
 export type UserInput = z.infer<typeof userSchema>;
