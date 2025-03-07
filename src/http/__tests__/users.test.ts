@@ -307,9 +307,9 @@ describe("PATCH /users/:id", () => {
 describe("PATCH /users/:id", () => {
   it("updates the user successfully", async () => {
     const user = await UserModel.query().insert({
-      username: "test",
-      email: "test@example.com",
-      birthDate: new Date("2000-01-01"),
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      birthDate: faker.date.birthdate({ min: 13, max: 120, mode: 'age' }),
     });
 
     const payload = {
@@ -327,17 +327,17 @@ describe("PATCH /users/:id", () => {
     expect(response.statusCode).toBe(200);
     expect(body).toMatchObject({
       id: user.id,
-      name: "Julius",
-      username: "test",
-      email: "test@example.com",
+      name: payload.name,
+      username: user.username,
+      email: user.email,
     });
   });
 
   it("should return 400 for invalid username", async () => {
     const user = await UserModel.query().insert({
-      username: "test",
-      email: "test@example.com",
-      birthDate: new Date("2000-01-01"),
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      birthDate: faker.date.birthdate({ min: 13, max: 120, mode: 'age' }),
     });
 
     const payload = {
@@ -360,9 +360,9 @@ describe("PATCH /users/:id", () => {
 
   it("should return 400 for invalid email", async () => {
     const user = await UserModel.query().insert({
-      username: "test",
-      email: "test@example.com",
-      birthDate: new Date("2000-01-01"),
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      birthDate: faker.date.birthdate({ min: 13, max: 120, mode: 'age' }),
     });
 
     const payload = {
@@ -383,13 +383,13 @@ describe("PATCH /users/:id", () => {
 
   it("should return 400 for invalid birth date", async () => {
     const user = await UserModel.query().insert({
-      username: "test",
-      email: "test@example.com",
-      birthDate: new Date("2000-01-01"),
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      birthDate: faker.date.birthdate({ min: 13, max: 120, mode: 'age' }),
     });
 
     const payload = {
-      birthDate: "2020-01-01", // muito recente
+      birthDate: "2020-01-01",
     };
 
     const response = await fastify.inject({
