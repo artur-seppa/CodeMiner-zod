@@ -2,9 +2,20 @@ import { CreateUserDto } from "../dtos/users/create.js";
 import { UpdateUserDto } from "../dtos/users/update.js";
 import ApplicationError, { ErrorCodes } from "../errors/applicationError.js";
 import UserModel from "../infra/database/models/userModel.js";
+import { validateUser } from "../validations/user.schema.js";
 
 export default class UserService {
   async create(user: CreateUserDto) {
+    const validationResult = validateUser(user);
+
+    if (!validationResult.success) {
+      throw new ApplicationError(
+        ErrorCodes.BAD_REQUEST,
+        "Validation failed",
+        validationResult.errors
+      );
+    }
+
     try {
       const newUser = await UserModel.query().insertAndFetch(user);
 
