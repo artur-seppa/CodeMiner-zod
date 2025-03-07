@@ -303,3 +303,128 @@ describe("PATCH /users/:id", () => {
     });
   });
 });
+
+describe("PATCH /users/:id", () => {
+  it("updates the user successfully", async () => {
+    const user = await UserModel.query().insert({
+      username: "test",
+      email: "test@example.com",
+      birthDate: new Date("2000-01-01"),
+    });
+
+    const payload = {
+      name: "Julius",
+    };
+
+    const response = await fastify.inject({
+      method: "PATCH",
+      path: `/users/${user.id}`,
+      payload,
+    });
+
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body).toMatchObject({
+      id: user.id,
+      name: "Julius",
+      username: "test",
+      email: "test@example.com",
+    });
+  });
+
+  it("should return 400 for invalid username", async () => {
+    const user = await UserModel.query().insert({
+      username: "test",
+      email: "test@example.com",
+      birthDate: new Date("2000-01-01"),
+    });
+
+    const payload = {
+      username: "a",
+    };
+
+    const response = await fastify.inject({
+      method: "PATCH",
+      path: `/users/${user.id}`,
+      payload,
+    });
+
+    expect(response.statusCode).toBe(400);
+    const error = JSON.parse(response.payload);
+    expect(error.message).toBe("Validation failed");
+    expect(error.details.username._errors).toContain(
+      "Username must be at least 3 characters"
+    );
+  });
+
+  it("should return 400 for invalid email", async () => {
+    const user = await UserModel.query().insert({
+      username: "test",
+      email: "test@example.com",
+      birthDate: new Date("2000-01-01"),
+    });
+
+    const payload = {
+      email: "invalid-email",
+    };
+
+    const response = await fastify.inject({
+      method: "PATCH",
+      path: `/users/${user.id}`,
+      payload,
+    });
+
+    expect(response.statusCode).toBe(400);
+    const error = JSON.parse(response.payload);
+    expect(error.message).toBe("Validation failed");
+    expect(error.details.email._errors).toContain("Invalid email format");
+  });
+
+  it("should return 400 for invalid birth date", async () => {
+    const user = await UserModel.query().insert({
+      username: "test",
+      email: "test@example.com",
+      birthDate: new Date("2000-01-01"),
+    });
+
+    const payload = {
+      birthDate: "2020-01-01", // muito recente
+    };
+
+    const response = await fastify.inject({
+      method: "PATCH",
+      path: `/users/${user.id}`,
+      payload,
+    });
+
+    expect(response.statusCode).toBe(400);
+    const error = JSON.parse(response.payload);
+    expect(error.message).toBe("Validation failed");
+    expect(error.details.birthDate._errors).toContain(
+      "Invalid date format or out of range"
+    );
+  });
+
+  describe("when the user is not found", () => {
+    it("returns HTTP not found", async () => {
+      const payload = {
+        name: "Julius",
+      };
+
+      const response = await fastify.inject({
+        method: "PATCH",
+        path: "/users/c4faf24a-f1cf-40d6-ace0-b500f8be5f75",
+        payload,
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).toBe(404);
+      expect(body).toMatchObject({
+        error: "Not Found",
+        message: "User not found",
+      });
+    });
+  });
+});

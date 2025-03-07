@@ -33,6 +33,8 @@ export default class UserService {
   async update(id: string, userData: UpdateUserDto) {
     const user = await UserModel.query().findById(id);
 
+    console.log(user);
+
     if (!user) {
       throw new ApplicationError(ErrorCodes.NOT_FOUND, "User not found");
     }
