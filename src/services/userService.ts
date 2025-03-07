@@ -2,11 +2,11 @@ import { CreateUserDto } from "../dtos/users/create.js";
 import { UpdateUserDto } from "../dtos/users/update.js";
 import ApplicationError, { ErrorCodes } from "../errors/applicationError.js";
 import UserModel from "../infra/database/models/userModel.js";
-import { validateUser } from "../validations/user.schema.js";
+import { validateCreateUser, validateUpdateUser } from "../validations/user.schema.js";
 
 export default class UserService {
   async create(user: CreateUserDto) {
-    const validationResult = validateUser(user);
+    const validationResult = validateCreateUser(user);
 
     if (!validationResult.success) {
       throw new ApplicationError(
@@ -35,6 +35,16 @@ export default class UserService {
 
     if (!user) {
       throw new ApplicationError(ErrorCodes.NOT_FOUND, "User not found");
+    }
+
+    const validationResult = validateUpdateUser(userData);
+
+    if (!validationResult.success) {
+      throw new ApplicationError(
+        ErrorCodes.BAD_REQUEST,
+        "Validation failed",
+        validationResult.errors
+      );
     }
 
     try {
