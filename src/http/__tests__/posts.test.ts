@@ -96,7 +96,7 @@ describe("POST /posts", () => {
       });
       expect(body.details).toMatchObject({
         authorId: { _errors: ["Required"] },
-        visibility: { _errors: ["Required"] },
+        visibility: { _errors: ["Visibility must be either 'public' or 'private'"] },
         body: { _errors: ["Required"] },
       });
     });

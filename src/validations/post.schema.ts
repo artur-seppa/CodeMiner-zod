@@ -5,12 +5,9 @@ export const createPostSchema = z.object({
         .string()
         .min(1, "Body cannot be empty")
         .max(512, "Body must be at most 512 characters"),
-    visibility: z
-        .string()
-        .min(1, "Visibility is required")
-        .refine((value) => value === "public" || value === "private", {
-            message: "Visibility must be either 'public' or 'private'",
-        }),
+    visibility: z.enum(["public", "private"], {
+        message: "Visibility must be either 'public' or 'private'",
+    }),
     authorId: z.string().uuid("Author ID must be a valid UUID"),
 });
 
